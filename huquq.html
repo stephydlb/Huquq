@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Huququ'llah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Animation de démarrage -->
+    <div id="animationDemarrage" class="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="animate-bounce mb-8">
+                <div class="bg-white rounded-full w-32 h-32 mx-auto flex items-center justify-center card-shadow">
+                    <svg width="80" height="80" viewBox="0 0 100 100" class="text-purple-600">
+                        <g fill="currentColor">
+                            <!-- Étoile à 9 branches bahá'íe -->
+                            <path d="M50 5 L52.5 25 L70 12 L57.5 30 L85 20 L67.5 35 L90 40 L70 45 L85 65 L62.5 55 L70 80 L52.5 65 L50 85 L47.5 65 L30 80 L37.5 55 L15 65 L30 45 L10 40 L32.5 35 L15 20 L42.5 30 L30 12 L47.5 25 Z"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-4 animate-pulse">Huququ'llah</h1>
+            <p class="text-white opacity-90 text-lg mb-8">Calculateur du Droit de Dieu</p>
+            <div class="animate-spin w-8 h-8 border-4 border-white border-t-transparent rounded-full mx-auto"></div>
+        </div>
+    </div>
+
+    <!-- Écran de connexion PIN -->
+    <div id="ecranConnexion" class="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center z-40 hidden">
+        <div class="bg-white rounded-3xl p-8 mx-4 w-full max-w-sm card-shadow">
+            <div class="text-center mb-8">
+                <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-3xl">🔐</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Accès sécurisé</h2>
+                <p class="text-gray-600">Entrez votre code PIN</p>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex justify-center space-x-3 mb-6">
+                    <div id="pin1" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                    <div id="pin2" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                    <div id="pin3" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                    <div id="pin4" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="1">1</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="2">2</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="3">3</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="4">4</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="5">5</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="6">6</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="7">7</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="8">8</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="9">9</button>
+                    <button id="effacerPin" class="bg-red-100 hover:bg-red-200 text-red-600 text-xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105">⌫</button>
+                    <button class="pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="0">0</button>
+                    <button id="validerPin" class="bg-green-100 hover:bg-green-200 text-green-600 text-xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105">✓</button>
+                </div>
+
+                <div id="erreurPin" class="text-red-500 text-center text-sm hidden mb-4"></div>
+
+                <div class="text-center">
+                    <button id="configurerPin" class="text-purple-600 text-sm hover:underline">
+                        Configurer un nouveau PIN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration du PIN -->
+    <div id="ecranConfigPin" class="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center z-40 hidden">
+        <div class="bg-white rounded-3xl p-8 mx-4 w-full max-w-sm card-shadow">
+            <div class="text-center mb-8">
+                <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-3xl">⚙️</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Nouveau PIN</h2>
+                <p id="instructionPin" class="text-gray-600">Choisissez un code PIN à 4 chiffres</p>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex justify-center space-x-3 mb-6">
+                    <div id="configPin1" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                    <div id="configPin2" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                    <div id="configPin3" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                    <div id="configPin4" class="w-4 h-4 rounded-full border-2 border-gray-300 transition-all duration-300"></div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="1">1</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="2">2</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="3">3</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="4">4</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="5">5</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="6">6</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="7">7</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="8">8</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="9">9</button>
+                    <button id="effacerConfigPin" class="bg-red-100 hover:bg-red-200 text-red-600 text-xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105">⌫</button>
+                    <button class="config-pin-btn bg-gray-100 hover:bg-gray-200 text-2xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105" data-number="0">0</button>
+                    <button id="validerConfigPin" class="bg-green-100 hover:bg-green-200 text-green-600 text-xl font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105">✓</button>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="annulerConfig" class="flex-1 bg-gray-500 text-white py-3 rounded-xl hover:bg-gray-600 transition-all duration-300">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application principale -->
+    <div id="appPrincipale" class="container mx-auto px-4 py-6 max-w-md hidden">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <div class="bg-white rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center card-shadow">
+                <svg width="40" height="40" viewBox="0 0 100 100" class="text-purple-600">
+                    <g fill="currentColor">
+                        <!-- Étoile à 9 branches bahá'íe -->
+                        <path d="M50 5 L52.5 25 L70 12 L57.5 30 L85 20 L67.5 35 L90 40 L70 45 L85 65 L62.5 55 L70 80 L52.5 65 L50 85 L47.5 65 L30 80 L37.5 55 L15 65 L30 45 L10 40 L32.5 35 L15 20 L42.5 30 L30 12 L47.5 25 Z"/>
+                    </g>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Huququ'llah</h1>
+            <p class="text-white opacity-90 text-sm">Calculateur du Droit de Dieu</p>
+            <button id="verrouiller" class="mt-2 bg-white bg-opacity-20 text-white px-3 py-1 rounded-lg text-xs hover:bg-opacity-30 transition-all duration-300">
+                🔒 Verrouiller
+            </button>
+        </div>
+
+        <!-- Prix de l'or -->
+        <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-2xl p-4 mb-6 card-shadow">
+            <div class="flex items-center justify-between text-white">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">🥇</span>
+                    <div>
+                        <h3 class="font-bold text-lg">Prix de l'Or</h3>
+                        <p class="text-sm opacity-90">1 gramme d'or 24k</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p id="prixOr" class="text-2xl font-bold">Chargement...</p>
+                    <p id="variationOr" class="text-sm"></p>
+                    <p id="derniereMaj" class="text-xs opacity-75"></p>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center justify-between">
+                <button id="activerNotifications" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-30 transition-all duration-300">
+                    🔔 Activer notifications
+                </button>
+                <div id="statutNotifications" class="text-xs opacity-75"></div>
+            </div>
+        </div>
+
+        <!-- Formulaire principal -->
+        <div class="bg-white rounded-2xl p-6 card-shadow slide-in mb-6">
+            <form id="huququForm">
+                <!-- Revenus annuels -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        💰 Revenus annuels totaux
+                    </label>
+                    <input type="number" id="revenus" 
+                           class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none input-focus transition-all duration-300" 
+                           placeholder="Ex: 50000" step="0.01">
+                    <p class="text-xs text-gray-500 mt-1">Salaires, profits, investissements, etc.</p>
+                </div>
+
+                <!-- Dépenses essentielles -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        🏠 Dépenses essentielles annuelles
+                    </label>
+                    <input type="number" id="depenses" 
+                           class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none input-focus transition-all duration-300" 
+                           placeholder="Ex: 30000" step="0.01">
+                    <p class="text-xs text-gray-500 mt-1">Logement, nourriture, vêtements, transport</p>
+                </div>
+
+                <!-- Dettes -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        📋 Dettes en cours
+                    </label>
+                    <input type="number" id="dettes" 
+                           class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none input-focus transition-all duration-300" 
+                           placeholder="Ex: 5000" step="0.01" value="0">
+                    <p class="text-xs text-gray-500 mt-1">Prêts, crédits à rembourser</p>
+                </div>
+
+                <!-- Huququ'llah déjà payé -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        ✅ Huququ'llah déjà payé cette année
+                    </label>
+                    <input type="number" id="dejaPaye" 
+                           class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none input-focus transition-all duration-300" 
+                           placeholder="Ex: 0" step="0.01" value="0">
+                    <p class="text-xs text-gray-500 mt-1">Montant déjà versé cette année</p>
+                </div>
+
+                <!-- Monnaie -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        💱 Monnaie
+                    </label>
+                    <select id="monnaie" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none input-focus transition-all duration-300">
+                        <option value="EUR">Euro (€)</option>
+                        <option value="USD">Dollar US ($)</option>
+                        <option value="GBP">Livre Sterling (£)</option>
+                        <option value="CAD">Dollar Canadien (CAD)</option>
+                        <option value="CHF">Franc Suisse (CHF)</option>
+                        <option value="MAD">Dirham Marocain (MAD)</option>
+                        <option value="TND">Dinar Tunisien (TND)</option>
+                    </select>
+                </div>
+
+                <!-- Bouton calculer -->
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 px-6 rounded-xl hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 card-shadow">
+                    🧮 Calculer le Huququ'llah
+                </button>
+            </form>
+        </div>
+
+        <!-- Résultats -->
+        <div id="resultats" class="bg-white rounded-2xl p-6 card-shadow slide-in hidden mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📊 Résultats du calcul</h3>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600">Revenus nets (après dépenses et dettes)</p>
+                    <p id="revenusNets" class="text-xl font-bold text-blue-600"></p>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600">Huququ'llah total dû (19%)</p>
+                    <p id="huququTotal" class="text-xl font-bold text-green-600"></p>
+                </div>
+                
+                <div class="bg-orange-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600">Montant restant à payer</p>
+                    <p id="montantRestant" class="text-2xl font-bold text-orange-600"></p>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    ℹ️ Le Huququ'llah est calculé à 19% des revenus nets annuels (après déduction des dépenses essentielles et des dettes). Ce calcul est donné à titre indicatif.
+                </p>
+            </div>
+        </div>
+
+        <!-- Sauvegarde -->
+        <div class="bg-white rounded-2xl p-6 card-shadow slide-in mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">💾 Sauvegarder mes données</h3>
+            
+            <div class="mb-4">
+                <input type="text" id="nomSauvegarde" 
+                       class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none input-focus transition-all duration-300" 
+                       placeholder="Nom de la sauvegarde (ex: Calcul 2024)">
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="sauvegarder" 
+                        class="flex-1 bg-green-500 text-white font-semibold py-3 px-4 rounded-xl hover:bg-green-600 transform hover:scale-105 transition-all duration-300">
+                    💾 Sauvegarder
+                </button>
+                <button id="charger" 
+                        class="flex-1 bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl hover:bg-blue-600 transform hover:scale-105 transition-all duration-300">
+                    📂 Charger
+                </button>
+            </div>
+        </div>
+
+        <!-- Liste des sauvegardes -->
+        <div id="listeSauvegardes" class="bg-white rounded-2xl p-6 card-shadow slide-in hidden">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">📋 Mes sauvegardes</h3>
+            <div id="sauvegardesContainer"></div>
+        </div>
+
+        <!-- À propos -->
+        <div class="bg-white rounded-2xl p-6 card-shadow slide-in mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <span class="mr-2">👤</span> À propos de moi
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-500 rounded-full w-16 h-16 flex items-center justify-center mr-4">
+                            <span class="text-2xl text-white">👨‍💻</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg">Développeur</h4>
+                            <p class="text-gray-600 text-sm">Spécialiste applications religieuses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                        <span class="text-xl mr-3">📧</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Email</p>
+                            <p class="font-semibold text-gray-800">contact@huququllah-app.com</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                        <span class="text-xl mr-3">📱</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Téléphone</p>
+                            <p class="font-semibold text-gray-800">+33 6 12 34 56 78</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                        <span class="text-xl mr-3">🌐</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Site web</p>
+                            <p class="font-semibold text-blue-600">www.huququllah-calculator.fr</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                        <span class="text-xl mr-3">📍</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Localisation</p>
+                            <p class="font-semibold text-gray-800">Paris, France</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl">
+                    <h5 class="font-semibold text-gray-800 mb-2 flex items-center">
+                        <span class="mr-2">💡</span> Mission
+                    </h5>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Faciliter le calcul du Huququ'llah pour la communauté bahá'íe grâce à des outils numériques sécurisés et intuitifs. Cette application respecte la confidentialité de vos données financières.
+                    </p>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-xl">
+                    <h5 class="font-semibold text-gray-800 mb-2 flex items-center">
+                        <span class="mr-2">🔒</span> Confidentialité
+                    </h5>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Toutes vos données sont stockées localement sur votre appareil. Aucune information financière n'est transmise à des serveurs externes. Votre vie privée est notre priorité.
+                    </p>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button id="contactDev" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-300 text-sm font-semibold">
+                        💬 Me contacter
+                    </button>
+                    <button id="partagerApp" class="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-4 rounded-xl hover:from-green-600 hover:to-blue-600 transform hover:scale-105 transition-all duration-300 text-sm font-semibold">
+                        📤 Partager l'app
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="message" class="fixed top-4 left-4 right-4 p-4 rounded-xl text-white font-semibold text-center transform -translate-y-full transition-all duration-300 z-50"></div>
+    </div>
+
+    <script>
+        // Symboles de monnaie
+        const symboles = {
+            'EUR': '€',
+            'USD': '$',
+            'GBP': '£',
+            'CAD': 'CAD',
+            'CHF': 'CHF',
+            'MAD': 'MAD',
+            'TND': 'TND'
+        };
+
+        // Variables pour le suivi de l'or
+        let prixOrPrecedent = null;
+        let notificationsActivees = false;
+        let intervalleOr = null;
+
+        // Variables pour la sécurité
+        let pinActuel = '';
+        let pinConfig = '';
+        let etapeConfig = 'nouveau'; // 'nouveau' ou 'confirmation'
+        let pinSauvegarde = localStorage.getItem('huququPin') || null;
+        let tentativesEchouees = 0;
+        const maxTentatives = 3;
+
+        // Fonction pour afficher un message
+        function afficherMessage(texte, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = texte;
+            messageEl.className = `fixed top-4 left-4 right-4 p-4 rounded-xl text-white font-semibold text-center transition-all duration-300 z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            messageEl.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                messageEl.style.transform = 'translateY(-100%)';
+            }, 3000);
+        }
+
+        // Fonction pour récupérer le prix de l'or
+        async function obtenirPrixOr() {
+            try {
+                // Simulation d'une API de prix de l'or (remplace par une vraie API)
+                // En réalité, vous utiliseriez une API comme metals-api.com ou goldapi.io
+                const prixBase = 65.50; // Prix de base en EUR par gramme
+                const variation = (Math.random() - 0.5) * 2; // Variation aléatoire
+                const nouveauPrix = prixBase + variation;
+                
+                const maintenant = new Date();
+                
+                return {
+                    prix: nouveauPrix,
+                    variation: prixOrPrecedent ? nouveauPrix - prixOrPrecedent : 0,
+                    timestamp: maintenant.toLocaleTimeString('fr-FR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })
+                };
+            } catch (error) {
+                console.error('Erreur lors de la récupération du prix de l\'or:', error);
+                return null;
+            }
+        }
+
+        // Fonction pour mettre à jour l'affichage du prix de l'or
+        async function mettreAJourPrixOr() {
+            const donnees = await obtenirPrixOr();
+            if (!donnees) return;
+
+            const prixOrEl = document.getElementById('prixOr');
+            const variationOrEl = document.getElementById('variationOr');
+            const derniereMajEl = document.getElementById('derniereMaj');
+
+            prixOrEl.textContent = `${donnees.prix.toFixed(2)} €`;
+            derniereMajEl.textContent = `Mis à jour: ${donnees.timestamp}`;
+
+            // Affichage de la variation
+            if (donnees.variation !== 0) {
+                const signe = donnees.variation > 0 ? '+' : '';
+                const couleur = donnees.variation > 0 ? 'text-green-200' : 'text-red-200';
+                const fleche = donnees.variation > 0 ? '↗️' : '↘️';
+                
+                variationOrEl.textContent = `${fleche} ${signe}${donnees.variation.toFixed(2)} €`;
+                variationOrEl.className = `text-sm ${couleur}`;
+
+                // Notification si le prix augmente et que les notifications sont activées
+                if (donnees.variation > 0 && notificationsActivees && prixOrPrecedent !== null) {
+                    envoyerNotificationOr(donnees.prix, donnees.variation);
+                }
+            }
+
+            prixOrPrecedent = donnees.prix;
+        }
+
+        // Fonction pour envoyer une notification
+        function envoyerNotificationOr(nouveauPrix, variation) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('📈 Prix de l\'or en hausse!', {
+                    body: `Le prix de l'or a augmenté de +${variation.toFixed(2)}€ et est maintenant à ${nouveauPrix.toFixed(2)}€/g`,
+                    icon: '🥇',
+                    tag: 'prix-or'
+                });
+            }
+            
+            // Notification visuelle dans l'app
+            afficherMessage(`🥇 L'or a augmenté de +${variation.toFixed(2)}€!`, 'success');
+        }
+
+        // Fonction pour activer les notifications
+        async function activerNotifications() {
+            if (!('Notification' in window)) {
+                afficherMessage('Les notifications ne sont pas supportées sur cet appareil', 'error');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                demarrerSuiviOr();
+            } else if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    demarrerSuiviOr();
+                } else {
+                    afficherMessage('Permissions de notification refusées', 'error');
+                }
+            } else {
+                afficherMessage('Les notifications sont bloquées. Activez-les dans les paramètres du navigateur.', 'error');
+            }
+        }
+
+        // Fonction pour démarrer le suivi de l'or
+        function demarrerSuiviOr() {
+            notificationsActivees = true;
+            document.getElementById('statutNotifications').textContent = '🟢 Notifications actives';
+            document.getElementById('activerNotifications').textContent = '🔕 Désactiver notifications';
+            
+            // Mise à jour toutes les 5 minutes
+            if (intervalleOr) clearInterval(intervalleOr);
+            intervalleOr = setInterval(mettreAJourPrixOr, 5 * 60 * 1000);
+            
+            afficherMessage('Notifications activées! Vous serez alerté des hausses de prix.', 'success');
+        }
+
+        // Fonction pour arrêter le suivi de l'or
+        function arreterSuiviOr() {
+            notificationsActivees = false;
+            document.getElementById('statutNotifications').textContent = '🔴 Notifications inactives';
+            document.getElementById('activerNotifications').textContent = '🔔 Activer notifications';
+            
+            if (intervalleOr) {
+                clearInterval(intervalleOr);
+                intervalleOr = null;
+            }
+            
+            afficherMessage('Notifications désactivées', 'success');
+        }
+
+        // Fonction pour formater les nombres
+        function formaterNombre(nombre, monnaie) {
+            return new Intl.NumberFormat('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(nombre) + ' ' + symboles[monnaie];
+        }
+
+        // Calcul du Huququ'llah
+        document.getElementById('huququForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const revenus = parseFloat(document.getElementById('revenus').value) || 0;
+            const depenses = parseFloat(document.getElementById('depenses').value) || 0;
+            const dettes = parseFloat(document.getElementById('dettes').value) || 0;
+            const dejaPaye = parseFloat(document.getElementById('dejaPaye').value) || 0;
+            const monnaie = document.getElementById('monnaie').value;
+
+            if (revenus <= 0) {
+                afficherMessage('Veuillez entrer un montant de revenus valide', 'error');
+                return;
+            }
+
+            // Calcul des revenus nets
+            const revenusNets = Math.max(0, revenus - depenses - dettes);
+            
+            // Calcul du Huququ'llah (19% des revenus nets)
+            const huququTotal = revenusNets * 0.19;
+            
+            // Montant restant à payer
+            const montantRestant = Math.max(0, huququTotal - dejaPaye);
+
+            // Affichage des résultats
+            document.getElementById('revenusNets').textContent = formaterNombre(revenusNets, monnaie);
+            document.getElementById('huququTotal').textContent = formaterNombre(huququTotal, monnaie);
+            document.getElementById('montantRestant').textContent = formaterNombre(montantRestant, monnaie);
+            
+            document.getElementById('resultats').classList.remove('hidden');
+            document.getElementById('resultats').scrollIntoView({ behavior: 'smooth' });
+            
+            if (montantRestant > 0) {
+                afficherMessage(`Huququ'llah calculé: ${formaterNombre(montantRestant, monnaie)} à payer`);
+            } else {
+                afficherMessage('Aucun Huququ\'llah à payer cette année');
+            }
+        });
+
+        // Sauvegarde des données
+        document.getElementById('sauvegarder').addEventListener('click', function() {
+            const nom = document.getElementById('nomSauvegarde').value.trim();
+            if (!nom) {
+                afficherMessage('Veuillez entrer un nom pour la sauvegarde', 'error');
+                return;
+            }
+
+            const donnees = {
+                nom: nom,
+                date: new Date().toLocaleDateString('fr-FR'),
+                revenus: document.getElementById('revenus').value,
+                depenses: document.getElementById('depenses').value,
+                dettes: document.getElementById('dettes').value,
+                dejaPaye: document.getElementById('dejaPaye').value,
+                monnaie: document.getElementById('monnaie').value
+            };
+
+            // Récupérer les sauvegardes existantes
+            let sauvegardes = JSON.parse(localStorage.getItem('huququSauvegardes') || '[]');
+            
+            // Ajouter la nouvelle sauvegarde
+            sauvegardes.push(donnees);
+            
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('huququSauvegardes', JSON.stringify(sauvegardes));
+            
+            afficherMessage(`Données sauvegardées: ${nom}`);
+            document.getElementById('nomSauvegarde').value = '';
+            afficherSauvegardes();
+        });
+
+        // Charger les sauvegardes
+        document.getElementById('charger').addEventListener('click', function() {
+            afficherSauvegardes();
+            const liste = document.getElementById('listeSauvegardes');
+            liste.classList.toggle('hidden');
+        });
+
+        // Afficher la liste des sauvegardes
+        function afficherSauvegardes() {
+            const sauvegardes = JSON.parse(localStorage.getItem('huququSauvegardes') || '[]');
+            const container = document.getElementById('sauvegardesContainer');
+            
+            if (sauvegardes.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucune sauvegarde trouvée</p>';
+                return;
+            }
+
+            container.innerHTML = sauvegardes.map((sauvegarde, index) => `
+                <div class="border-2 border-gray-200 rounded-xl p-4 mb-3 hover:border-purple-300 transition-all duration-300">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold text-gray-800">${sauvegarde.nom}</h4>
+                        <span class="text-xs text-gray-500">${sauvegarde.date}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Revenus: ${formaterNombre(parseFloat(sauvegarde.revenus || 0), sauvegarde.monnaie)}
+                    </p>
+                    <div class="flex gap-2">
+                        <button onclick="chargerSauvegarde(${index})" 
+                                class="flex-1 bg-blue-500 text-white text-sm py-2 px-3 rounded-lg hover:bg-blue-600 transition-all duration-300">
+                            📂 Charger
+                        </button>
+                        <button onclick="supprimerSauvegarde(${index})" 
+                                class="bg-red-500 text-white text-sm py-2 px-3 rounded-lg hover:bg-red-600 transition-all duration-300">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Charger une sauvegarde spécifique
+        function chargerSauvegarde(index) {
+            const sauvegardes = JSON.parse(localStorage.getItem('huququSauvegardes') || '[]');
+            const sauvegarde = sauvegardes[index];
+            
+            if (sauvegarde) {
+                document.getElementById('revenus').value = sauvegarde.revenus || '';
+                document.getElementById('depenses').value = sauvegarde.depenses || '';
+                document.getElementById('dettes').value = sauvegarde.dettes || '';
+                document.getElementById('dejaPaye').value = sauvegarde.dejaPaye || '';
+                document.getElementById('monnaie').value = sauvegarde.monnaie || 'EUR';
+                
+                document.getElementById('listeSauvegardes').classList.add('hidden');
+                afficherMessage(`Données chargées: ${sauvegarde.nom}`);
+                
+                // Scroll vers le formulaire
+                document.getElementById('huququForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Supprimer une sauvegarde
+        function supprimerSauvegarde(index) {
+            let sauvegardes = JSON.parse(localStorage.getItem('huququSauvegardes') || '[]');
+            const nomSupprime = sauvegardes[index].nom;
+            sauvegardes.splice(index, 1);
+            localStorage.setItem('huququSauvegardes', JSON.stringify(sauvegardes));
+            afficherMessage(`Sauvegarde supprimée: ${nomSupprime}`);
+            afficherSauvegardes();
+        }
+
+        // Gestionnaire pour le bouton de notifications
+        document.getElementById('activerNotifications').addEventListener('click', function() {
+            if (notificationsActivees) {
+                arreterSuiviOr();
+            } else {
+                activerNotifications();
+            }
+        });
+
+        // Gestionnaires pour la section À propos
+        document.getElementById('contactDev').addEventListener('click', function() {
+            const sujet = encodeURIComponent('Contact depuis l\'app Huququ\'llah');
+            const corps = encodeURIComponent('Bonjour,\n\nJe vous contacte depuis l\'application Huququ\'llah.\n\nCordialement');
+            window.open(`mailto:contact@huququllah-app.com?subject=${sujet}&body=${corps}`, '_blank');
+            afficherMessage('📧 Application email ouverte!', 'success');
+        });
+
+        document.getElementById('partagerApp').addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Calculateur Huququ\'llah',
+                    text: 'Découvrez cette application sécurisée pour calculer le Huququ\'llah',
+                    url: window.location.href
+                }).then(() => {
+                    afficherMessage('📤 Application partagée!', 'success');
+                }).catch(() => {
+                    copierLien();
+                });
+            } else {
+                copierLien();
+            }
+        });
+
+        function copierLien() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    afficherMessage('🔗 Lien copié dans le presse-papiers!', 'success');
+                }).catch(() => {
+                    afficherMessage('Impossible de copier le lien', 'error');
+                });
+            } else {
+                // Fallback pour les navigateurs plus anciens
+                const textArea = document.createElement('textarea');
+                textArea.value = window.location.href;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    afficherMessage('🔗 Lien copié!', 'success');
+                } catch (err) {
+                    afficherMessage('Impossible de copier le lien', 'error');
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Fonctions de sécurité
+        function afficherAnimationDemarrage() {
+            document.getElementById('animationDemarrage').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('animationDemarrage').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('animationDemarrage').classList.add('hidden');
+                    verifierAcces();
+                }, 500);
+            }, 3000);
+        }
+
+        function verifierAcces() {
+            if (pinSauvegarde) {
+                afficherEcranConnexion();
+            } else {
+                afficherEcranConfigPin();
+            }
+        }
+
+        function afficherEcranConnexion() {
+            document.getElementById('ecranConnexion').classList.remove('hidden');
+            document.getElementById('appPrincipale').classList.add('hidden');
+            pinActuel = '';
+            mettreAJourAffichagePin();
+        }
+
+        function afficherEcranConfigPin() {
+            document.getElementById('ecranConfigPin').classList.remove('hidden');
+            document.getElementById('ecranConnexion').classList.add('hidden');
+            document.getElementById('appPrincipale').classList.add('hidden');
+            pinConfig = '';
+            etapeConfig = 'nouveau';
+            document.getElementById('instructionPin').textContent = 'Choisissez un code PIN à 4 chiffres';
+            mettreAJourAffichageConfigPin();
+        }
+
+        function afficherAppPrincipale() {
+            document.getElementById('appPrincipale').classList.remove('hidden');
+            document.getElementById('ecranConnexion').classList.add('hidden');
+            document.getElementById('ecranConfigPin').classList.add('hidden');
+            
+            // Message de bienvenue
+            setTimeout(() => {
+                afficherMessage('🎉 Bienvenue dans votre calculateur Huququ\'llah sécurisé!', 'success');
+            }, 500);
+            
+            // Charger le prix de l'or
+            mettreAJourPrixOr();
+        }
+
+        function mettreAJourAffichagePin() {
+            for (let i = 1; i <= 4; i++) {
+                const pinElement = document.getElementById(`pin${i}`);
+                if (i <= pinActuel.length) {
+                    pinElement.classList.add('bg-purple-600', 'border-purple-600');
+                    pinElement.classList.remove('border-gray-300');
+                } else {
+                    pinElement.classList.remove('bg-purple-600', 'border-purple-600');
+                    pinElement.classList.add('border-gray-300');
+                }
+            }
+        }
+
+        function mettreAJourAffichageConfigPin() {
+            for (let i = 1; i <= 4; i++) {
+                const pinElement = document.getElementById(`configPin${i}`);
+                if (i <= pinConfig.length) {
+                    pinElement.classList.add('bg-green-600', 'border-green-600');
+                    pinElement.classList.remove('border-gray-300');
+                } else {
+                    pinElement.classList.remove('bg-green-600', 'border-green-600');
+                    pinElement.classList.add('border-gray-300');
+                }
+            }
+        }
+
+        function ajouterChiffrePin(chiffre) {
+            if (pinActuel.length < 4) {
+                pinActuel += chiffre;
+                mettreAJourAffichagePin();
+            }
+        }
+
+        function ajouterChiffreConfigPin(chiffre) {
+            if (pinConfig.length < 4) {
+                pinConfig += chiffre;
+                mettreAJourAffichageConfigPin();
+            }
+        }
+
+        function effacerPin() {
+            pinActuel = pinActuel.slice(0, -1);
+            mettreAJourAffichagePin();
+            document.getElementById('erreurPin').classList.add('hidden');
+        }
+
+        function effacerConfigPin() {
+            pinConfig = pinConfig.slice(0, -1);
+            mettreAJourAffichageConfigPin();
+        }
+
+        function validerPin() {
+            if (pinActuel.length !== 4) {
+                afficherErreurPin('Veuillez entrer un PIN à 4 chiffres');
+                return;
+            }
+
+            if (pinActuel === pinSauvegarde) {
+                tentativesEchouees = 0;
+                afficherAppPrincipale();
+            } else {
+                tentativesEchouees++;
+                if (tentativesEchouees >= maxTentatives) {
+                    afficherErreurPin(`Trop de tentatives échouées. Attendez 30 secondes.`);
+                    setTimeout(() => {
+                        tentativesEchouees = 0;
+                        document.getElementById('erreurPin').classList.add('hidden');
+                    }, 30000);
+                } else {
+                    afficherErreurPin(`PIN incorrect. ${maxTentatives - tentativesEchouees} tentative(s) restante(s)`);
+                }
+                pinActuel = '';
+                mettreAJourAffichagePin();
+            }
+        }
+
+        function validerConfigPin() {
+            if (pinConfig.length !== 4) {
+                return;
+            }
+
+            if (etapeConfig === 'nouveau') {
+                etapeConfig = 'confirmation';
+                const premierPin = pinConfig;
+                pinConfig = '';
+                mettreAJourAffichageConfigPin();
+                document.getElementById('instructionPin').textContent = 'Confirmez votre code PIN';
+                
+                // Stocker temporairement le premier PIN
+                window.premierPin = premierPin;
+            } else {
+                // Confirmation
+                if (pinConfig === window.premierPin) {
+                    // PIN confirmé, sauvegarder
+                    localStorage.setItem('huququPin', pinConfig);
+                    pinSauvegarde = pinConfig;
+                    afficherMessage('PIN configuré avec succès!', 'success');
+                    setTimeout(() => {
+                        afficherAppPrincipale();
+                    }, 1000);
+                } else {
+                    // PINs ne correspondent pas
+                    etapeConfig = 'nouveau';
+                    pinConfig = '';
+                    mettreAJourAffichageConfigPin();
+                    document.getElementById('instructionPin').textContent = 'Les PINs ne correspondent pas. Recommencez.';
+                    delete window.premierPin;
+                }
+            }
+        }
+
+        function afficherErreurPin(message) {
+            const erreurEl = document.getElementById('erreurPin');
+            erreurEl.textContent = message;
+            erreurEl.classList.remove('hidden');
+        }
+
+        function verrouiller() {
+            afficherEcranConnexion();
+        }
+
+        // Gestionnaires d'événements pour la sécurité
+        document.querySelectorAll('.pin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (tentativesEchouees < maxTentatives) {
+                    ajouterChiffrePin(btn.dataset.number);
+                }
+            });
+        });
+
+        document.querySelectorAll('.config-pin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                ajouterChiffreConfigPin(btn.dataset.number);
+            });
+        });
+
+        document.getElementById('effacerPin').addEventListener('click', effacerPin);
+        document.getElementById('effacerConfigPin').addEventListener('click', effacerConfigPin);
+        document.getElementById('validerPin').addEventListener('click', validerPin);
+        document.getElementById('validerConfigPin').addEventListener('click', validerConfigPin);
+        document.getElementById('verrouiller').addEventListener('click', verrouiller);
+
+        document.getElementById('configurerPin').addEventListener('click', () => {
+            afficherEcranConfigPin();
+        });
+
+        document.getElementById('annulerConfig').addEventListener('click', () => {
+            if (pinSauvegarde) {
+                afficherEcranConnexion();
+            } else {
+                // Si aucun PIN n'est configuré, on ne peut pas annuler
+                afficherMessage('Vous devez configurer un PIN pour utiliser l\'application', 'error');
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Démarrer avec l'animation
+            afficherAnimationDemarrage();
+            
+            // Mise à jour automatique toutes les 30 secondes pour la démo
+            setInterval(mettreAJourPrixOr, 30000);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e6ca1fa692121e',t:'MTc2MDQ0MTg5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
