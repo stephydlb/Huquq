@@ -272,6 +272,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final _dettesController = TextEditingController();
   final _dejaPayeController = TextEditingController();
   String _monnaie = 'EUR';
+  String _periodePaiement = 'annuel'; // New field for payment period: 'annuel', 'trimestriel', 'mensuel'
   double? _revenusNets;
   double? _huququTotal;
   double? _montantRestant;
@@ -319,9 +320,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final dettes = double.tryParse(_dettesController.text) ?? 0;
       final dejaPaye = double.tryParse(_dejaPayeController.text) ?? 0;
 
-      final revenusNets = revenus - depenses - dettes;
+      // Adjust calculation based on payment period
+      double revenusAjustes = revenus;
+      double depensesAjustes = depenses;
+      double dettesAjustes = dettes;
+      double dejaPayeAjuste = dejaPaye;
+
+      switch (_periodePaiement) {
+        case 'trimestriel':
+          // Convert quarterly to annual for calculation
+          revenusAjustes *= 4;
+          depensesAjustes *= 4;
+          dettesAjustes *= 4;
+          dejaPayeAjuste *= 4;
+          break;
+        case 'mensuel':
+          // Convert monthly to annual for calculation
+          revenusAjustes *= 12;
+          depensesAjustes *= 12;
+          dettesAjustes *= 12;
+          dejaPayeAjuste *= 12;
+          break;
+        case 'annuel':
+        default:
+          // Already annual, no conversion needed
+          break;
+      }
+
+      final revenusNets = revenusAjustes - depensesAjustes - dettesAjustes;
       final huququTotal = revenusNets * 0.19;
-      final montantRestant = huququTotal - dejaPaye;
+      final montantRestant = huququTotal - dejaPayeAjuste;
 
       setState(() {
         _revenusNets = revenusNets > 0 ? revenusNets : 0;
@@ -333,6 +361,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   String _formatNombre(double nombre) {
     return '${nombre.toStringAsFixed(2)} ${_symboles[_monnaie]}';
+  }
+
+  String _getPeriodeLabel() {
+    switch (_periodePaiement) {
+      case 'trimestriel':
+        return 'trimestriels';
+      case 'mensuel':
+        return 'mensuels';
+      case 'annuel':
+      default:
+        return 'annuels';
+    }
   }
 
   @override
@@ -419,10 +459,53 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Payment Period Selection
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '📅 Période de paiement',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment<String>(
+                              value: 'annuel',
+                              label: Text('Annuel'),
+                            ),
+                            ButtonSegment<String>(
+                              value: 'trimestriel',
+                              label: Text('Trimestriel'),
+                            ),
+                            ButtonSegment<String>(
+                              value: 'mensuel',
+                              label: Text('Mensuel'),
+                            ),
+                          ],
+                          selected: {_periodePaiement},
+                          onSelectionChanged: (Set<String> newSelection) {
+                            setState(() {
+                              _periodePaiement = newSelection.first;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 _buildInputCard(
-                  '💰 Revenus annuels totaux',
+                  '💰 Revenus ${_getPeriodeLabel()} totaux',
                   _revenusController,
-                  'Ex: 50000',
+                  'Ex: ${_periodePaiement == 'annuel' ? '50000' : _periodePaiement == 'trimestriel' ? '12500' : '4167'}',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Veuillez entrer vos revenus';
@@ -432,9 +515,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 16),
                 _buildInputCard(
-                  '🏠 Dépenses essentielles annuelles',
+                  '🏠 Dépenses essentielles ${_getPeriodeLabel()}',
                   _depensesController,
-                  'Ex: 30000',
+                  'Ex: ${_periodePaiement == 'annuel' ? '30000' : _periodePaiement == 'trimestriel' ? '7500' : '2500'}',
                 ),
                 const SizedBox(height: 16),
                 _buildInputCard(
@@ -444,7 +527,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 16),
                 _buildInputCard(
-                  '✅ Huququ\'llah déjà payé cette année',
+                  '✅ Huququ\'llah déjà payé cette ${_periodePaiement == 'annuel' ? 'année' : _periodePaiement == 'trimestriel' ? 'trimestre' : 'mois'}',
                   _dejaPayeController,
                   'Ex: 0',
                 ),
