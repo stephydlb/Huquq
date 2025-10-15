@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'providers/app_provider.dart';
+import 'services/notification_service.dart';
+import 'screens/settings_screen.dart';
 
-void main() {
-  runApp(const HuquqApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => AppProvider())],
+      child: const HuquqApp(),
+    ),
+  );
 }
 
 class HuquqApp extends StatelessWidget {
@@ -165,6 +174,7 @@ class _PinScreenState extends State<PinScreen> {
                   _isSettingPin
                       ? (_isConfirming ? 'Confirmer le PIN' : 'Créer un PIN')
                       : 'Entrez votre PIN',
+                  key: const ValueKey('pin_title'),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -184,7 +194,7 @@ class _PinScreenState extends State<PinScreen> {
                         shape: BoxShape.circle,
                         color: index < currentPin.length
                             ? Colors.white
-                            : Colors.white.withOpacity(0.3),
+                            : Colors.white.withValues(alpha: 0.3),
                       ),
                     );
                   }),
@@ -193,9 +203,11 @@ class _PinScreenState extends State<PinScreen> {
                 GridView.count(
                   crossAxisCount: 3,
                   shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
                     for (int i = 1; i <= 9; i++)
                       ElevatedButton(
+                        key: ValueKey('digit_$i'),
                         onPressed: () => _addDigit(i.toString()),
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
@@ -207,6 +219,7 @@ class _PinScreenState extends State<PinScreen> {
                         ),
                       ),
                     ElevatedButton(
+                      key: const ValueKey('clear'),
                       onPressed: _clearDigit,
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
@@ -216,6 +229,7 @@ class _PinScreenState extends State<PinScreen> {
                       child: const Icon(Icons.backspace),
                     ),
                     ElevatedButton(
+                      key: const ValueKey('zero'),
                       onPressed: () => _addDigit('0'),
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
@@ -224,6 +238,7 @@ class _PinScreenState extends State<PinScreen> {
                       child: const Text('0', style: TextStyle(fontSize: 24)),
                     ),
                     ElevatedButton(
+                      key: const ValueKey('validate'),
                       onPressed: _validatePin,
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
@@ -250,7 +265,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _revenusController = TextEditingController();
   final _depensesController = TextEditingController();
@@ -261,6 +276,9 @@ class _HomeScreenState extends State<HomeScreen> {
   double? _huququTotal;
   double? _montantRestant;
 
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
   final Map<String, String> _symboles = {
     'EUR': '€',
     'USD': '\$',
@@ -270,6 +288,29 @@ class _HomeScreenState extends State<HomeScreen> {
     'MAD': 'MAD',
     'TND': 'TND',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    _animationController.forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AppProvider>().loadGoldPrice();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _calculerHuququ() {
     if (_formKey.currentState!.validate()) {
@@ -296,11 +337,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appProvider = context.watch<AppProvider>();
+    final goldPrice = appProvider.goldPrice;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calculateur Huququ\'llah'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.lock),
             onPressed: () {
@@ -311,227 +363,210 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Prix de l\'or',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text('1 gramme d\'or 24k'),
-                      const SizedBox(height: 8),
-                      Text(
-                        '65.50 €',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '💰 Revenus annuels totaux',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _revenusController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'Ex: 50000',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer vos revenus';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '🏠 Dépenses essentielles annuelles',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _depensesController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'Ex: 30000',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '📋 Dettes en cours',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _dettesController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(hintText: 'Ex: 5000'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '✅ Huququ\'llah déjà payé cette année',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextFormField(
-                        controller: _dejaPayeController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(hintText: 'Ex: 0'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '💱 Monnaie',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      DropdownButtonFormField<String>(
-                        initialValue: _monnaie,
-                        items: _symboles.entries.map((entry) {
-                          return DropdownMenuItem(
-                            value: entry.key,
-                            child: Text('${entry.key} (${entry.value})'),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _monnaie = value!;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _calculerHuququ,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-                child: const Text(
-                  '🧮 Calculer le Huququ\'llah',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              if (_revenusNets != null) ...[
-                const SizedBox(height: 24),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Card(
+                  elevation: 2, // Reduced elevation for better performance
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Prix de l\'or',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('1 gramme d\'or 24k'),
+                        const SizedBox(height: 8),
+                        if (appProvider.isLoading)
+                          const CircularProgressIndicator()
+                        else if (goldPrice != null)
+                          Column(
+                            children: [
+                              Text(
+                                '${goldPrice.pricePerGram.toStringAsFixed(2)} ${goldPrice.currency}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Prix par kilo: ${goldPrice.pricePerKilo.toStringAsFixed(2)} ${goldPrice.currency}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              Text(
+                                'Prix par mithqal: ${goldPrice.pricePerMithqal.toStringAsFixed(2)} ${goldPrice.currency}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          )
+                        else
+                          const Text('Prix non disponible'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildInputCard(
+                  '💰 Revenus annuels totaux',
+                  _revenusController,
+                  'Ex: 50000',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer vos revenus';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildInputCard(
+                  '🏠 Dépenses essentielles annuelles',
+                  _depensesController,
+                  'Ex: 30000',
+                ),
+                const SizedBox(height: 16),
+                _buildInputCard(
+                  '📋 Dettes en cours',
+                  _dettesController,
+                  'Ex: 5000',
+                ),
+                const SizedBox(height: 16),
+                _buildInputCard(
+                  '✅ Huququ\'llah déjà payé cette année',
+                  _dejaPayeController,
+                  'Ex: 0',
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  elevation: 2, // Reduced elevation for better performance
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          '📊 Résultats du calcul',
+                          '💱 Monnaie',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        _buildResultRow(
-                          'Revenus nets (après dépenses et dettes)',
-                          _formatNombre(_revenusNets!),
-                          Colors.blue,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildResultRow(
-                          'Huququ\'llah total dû (19%)',
-                          _formatNombre(_huququTotal!),
-                          Colors.green,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildResultRow(
-                          'Montant restant à payer',
-                          _formatNombre(_montantRestant!),
-                          Colors.orange,
+                        DropdownButtonFormField<String>(
+                          key: const ValueKey('currency_dropdown'),
+                          initialValue: _monnaie,
+                          items: _symboles.entries.map((entry) {
+                            return DropdownMenuItem(
+                              value: entry.key,
+                              child: Text('${entry.key} (${entry.value})'),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _monnaie = value!;
+                            });
+                          },
                         ),
                       ],
                     ),
                   ),
                 ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _calculerHuququ,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(16),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  child: const Text(
+                    '🧮 Calculer le Huququ\'llah',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                if (_revenusNets != null) ...[
+                  const SizedBox(height: 24),
+                  Card(
+                    elevation: 2, // Reduced elevation for better performance
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '📊 Résultats du calcul',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildResultRow(
+                            'Revenus nets (après dépenses et dettes)',
+                            _formatNombre(_revenusNets!),
+                            Colors.blue,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildResultRow(
+                            'Huququ\'llah total dû (19%)',
+                            _formatNombre(_huququTotal!),
+                            Colors.green,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildResultRow(
+                            'Montant restant à payer',
+                            _formatNombre(_montantRestant!),
+                            Colors.orange,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputCard(
+    String label,
+    TextEditingController controller,
+    String hint, {
+    String? Function(String?)? validator,
+  }) {
+    return Card(
+      elevation: 2, // Reduced elevation for better performance
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            TextFormField(
+              key: ValueKey('input_${label.hashCode}'),
+              controller: controller,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(hintText: hint),
+              validator: validator,
+            ),
+          ],
         ),
       ),
     );
